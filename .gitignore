@@ -1,2 +1,5 @@
+# ignore all log files
 *.log
+
+# ignore all .o files
 *.o
