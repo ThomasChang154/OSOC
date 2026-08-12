@@ -1,0 +1,260 @@
+1.1
+本课程需要使用类 Unix shell，例如 Bash 或 ZSH。
+如果您在 Linux 或者 MacOS 上面完成本课程的练习，则不需要做任何特殊的操作。
+如果您使用的是 Windows，则您不应该使用 cmd 或是 Powershell；
+您可以使用 Windows Subsystem for Linux 或者是 Linux 虚拟机。
+使用 echo $SHELL 命令可以查看您的 shell 是否满足要求。
+如果打印结果为 /bin/bash 或 /usr/bin/zsh 则是可以的。
+
+1.2
+在 /tmp 下新建一个名为 missing 的文件夹。
+答：
+cd /tmp
+mkdir missing
+
+1.3
+用 man 查看程序 touch 的使用手册。
+答：
+man touch
+更推荐使用tldr查看命令的具体使用方式和示例
+
+1.4
+用 touch 在 missing 文件夹中新建一个叫 semester.sh 的文件。
+答：
+cd /tmp/missing
+touch semester.sh
+
+1.5
+将以下内容一行一行地写入 semester.sh 文件：
+-----------------------------------------------------------
+#!/bin/bash
+
+curl --head --silent https://missing.csail.mit.edu
+-----------------------------------------------------------
+第一行可能有点棘手， # 在 Bash 中表示注释，
+而 ! 即使被双引号（"）包裹也具有特殊的含义。
+单引号（'）则不一样，此处利用这一点解决输入问题。
+答：
+第一句告诉操作系统使用什么解释器执行这个脚本， #! 是一个特殊的标记符，
+系统看到这个组合，就知道后面跟着的是解释器的路径。
+
+1.6
+尝试执行这个文件。
+例如，将该脚本的路径（./semester.sh）输入到您的 shell 中并回车。
+如果程序无法执行，请使用 ls 命令来获取信息并理解其不能执行的原因。
+答：
+该程序无法执行，缺少执行权限，使用 ls -altr 查看 missing 目录下文件的权限可以发现：
+-----------------------------------------------------------------------
+-rw-r--r-- 1 thomas_osoc thomas_osoc 64 Aug  4 12:47 semester.sh
+-----------------------------------------------------------------------
+本用户的权限为 rw- ，缺少执行权限，因此无法执行。
+
+1.7
+查看 chmod 的手册（例如，使用 man chmod 命令）
+答：
+man chmod
+更推荐使用tldr查看命令的具体使用方式和示例
+
+1.8
+使用 chmod 命令改变权限，使 ./semester.sh 能够成功执行，
+不要使用 bash semester.sh 来执行该程序。
+您的 shell 是如何知晓这个文件需要使用 bash 来解析呢？
+答：
+cd /tmp/missing
+chmod 744 semester.sh       # 744 表示 rwxr--r-- ，为自己赋予执行权限
+ls -altr
+./semester.sh
+执行以上命令后，可以成功执行该文件，命令行上打印出：
+-----------------------------------------------------------------
+HTTP/2 200 
+server: GitHub.com
+content-type: text/html; charset=utf-8
+x-origin-cache: HIT
+last-modified: Sun, 19 Jul 2026 15:04:54 GMT
+access-control-allow-origin: *
+etag: "6a5ce796-39da"
+expires: Tue, 04 Aug 2026 05:04:37 GMT
+cache-control: max-age=600
+x-proxy-cache: MISS
+x-github-request-id: 3B58:1C045B:F2B7AB:FC980C:6A71708C
+x-github-edge-region: japaneast
+accept-ranges: bytes
+age: 0
+date: Tue, 04 Aug 2026 04:54:37 GMT
+via: 1.1 varnish
+x-served-by: cache-itm1220023-ITM
+x-cache: MISS
+x-cache-hits: 0
+x-timer: S1785819277.453632,VS0,VE180
+vary: Accept-Encoding
+x-fastly-request-id: d63740e9936ee2f6dd82cc7308f4455450489afb
+content-length: 14810
+-----------------------------------------------------------------
+之所以 shell 知道使用 bash 解析，是因为脚本中第一行指明 #!/bin/bash 。
+
+1.9
+使用 | 和 > ，将 semester.sh 文件输出的最后更改日期信息，
+写入主目录下的 last-modified.txt 的文件中。
+答：
+cd /tmp
+touch last-modified.txt
+cd /tmp/missing
+./semester.sh | grep '^last' > /tmp/last-modified.txt
+
+1.10
+写一段命令来从 /sys 中获取笔记本的电量信息，或者台式机 CPU 的温度。
+答：
+笔记本的电量信息存放在 /sys/class/power_supply 目录下，执行：
+cd /sys/class/power_supply 
+之后执行 ls 发现有 AC1 和 BAT1 ，我们查看 BAT1 的情况：
+cd BAT1
+cat status
+发现输出为 FULL ，可知 BAT1 为已充满状态。此外，执行：
+cat capacity
+可以获知电量百分比，例如 100 为 100% 满电状态。
+
+2.1
+阅读 man ls ，然后使用 ls 命令进行如下操作：
+---------------------------------------------------------------
+所有文件（包括隐藏文件）
+文件打印以人类可以理解的格式输出 (例如，使用 454M 而不是 454279954)
+文件以最近修改顺序排序
+以彩色文本显示输出结果
+---------------------------------------------------------------
+答：
+执行 ls -alth 即可：
+选项“-a”表示显示所有项目（包括隐藏项目）；
+选项“-l”表示按照列表形式输出；
+选项“-t”表示按最新修改时间到最旧修改时间排列项目；
+选项“-h”表示文件打印以人类可以理解的格式输出；
+该命令自身已经有“以彩色文本显示输出结果”的功能。
+
+2.2
+编写两个 bash 函数 marco 和 polo 执行下面的操作。
+每当你执行 marco 时，当前的工作目录应当以某种形式保存，
+当执行 polo 时，无论现在处在什么目录下，都应当 cd 回到当时执行 marco 的目录。 
+为了方便 debug，你可以把代码写在单独的文件 marco.sh 中，
+并通过 source marco.sh 命令（父进程中执行），重新加载函数。
+答：
+如果写成两个独立的脚本，则：
+marco.sh 的脚本代码如下：
+-----------------------------------------------------------------
+#!/bin/bash
+
+path=$(pwd)
+echo "${path}" > /tmp/dir_rec.txt
+-----------------------------------------------------------------
+polo.sh 的脚本代码如下：
+-----------------------------------------------------------------
+#!/bin/bash
+
+path=$(cat /tmp/dir_rec.txt)
+cd "${path}"
+-----------------------------------------------------------------
+如果写成一个完整的脚本，则：
+-----------------------------------------------------------------
+#!/bin/bash
+
+function polo()
+{
+	local record=$(cat /tmp/dir_rec.txt)
+	if [ "${record}" == "" ]; then
+		echo "You should execute function marco first."
+		exit 1
+	else
+		cd "${record}"
+		echo "We have changed our directory to ${record}."
+	fi
+}
+
+function marco()
+{
+	echo "$(pwd)" > /tmp/dir_rec.txt
+	local path=$(pwd)
+	echo "We are at ${path} now." 
+}
+
+# If you want to save the directory where you are, 
+# please execute: source marcopolo.sh 0
+# If you want to change the directory where you are,
+# to the latest saved directory, 
+# please execute: source marcopolo.sh 1
+
+if [ "${1}" -eq "0" ]; then
+	marco
+elif [ "${1}" -eq "1" ]; then
+	polo
+fi
+-----------------------------------------------------------------
+
+2.3
+假设您有一个命令，它很少出错。因此为了在出错时能够对其进行调试，
+需要花费大量的时间重现错误并捕获输出。 
+编写一段 bash 脚本，运行如下的脚本直到它出错，
+将它的标准输出和标准错误流记录到文件，并在最后输出所有内容。
+加分项：报告脚本在失败前共运行了多少次。
+-----------------------------------------------------------------
+#!/usr/bin/env bash
+
+ n=$(( RANDOM % 100 ))
+
+ if [[ n -eq 42 ]]; then
+    echo "Something went wrong"
+    >&2 echo "The error was using magic numbers"
+    exit 1
+ fi
+
+ echo "Everything went according to plan"
+-----------------------------------------------------------------
+答：
+将代码修改成如下形式，引入 until 循环记录执行次数，即可知失败前一共运行的次数：
+-----------------------------------------------------------------
+#!/usr/bin/env bash
+
+n=$(( RANDOM % 100 ))
+i=1
+
+until [[ n -eq 42 ]]
+do
+	n=$(( RANDOM % 100 ))
+	echo "${i} Everything went according to plan"
+	i=$((i+1))
+done
+
+echo "${i} Something went wrong"
+>&2 echo "The error was using magic numbers"
+exit 1
+-----------------------------------------------------------------
+
+2.4
+本节课我们讲解的 find 命令中的 -exec 参数非常强大，
+它可以对我们查找的文件进行操作。但是，如果我们要对所有文件进行操作呢？
+例如创建一个 zip 压缩文件？我们已经知道，命令行可以从参数或标准输入接受输入。
+在用管道连接命令时，我们将标准输出和标准输入连接起来，
+但是有些命令，例如 tar 则需要从参数接受输入。
+这里我们可以使用 xargs 命令，它可以使用标准输入中的内容作为参数。
+例如 ls | xargs rm 会删除当前目录中的所有文件。
+您的任务是编写一个命令，它可以递归地查找文件夹中所有的 HTML 文件，
+并将它们压缩成 tar.gz 文件。
+注意，即使文件名中包含空格，您的命令也应该能够正确执行。
+提示，使用 find 命令的 -print0 选项配合 xargs 命令的 -0 选项。
+答：
+执行下面的命令即可：
+find . -iname "*.html" -print0 | xargs -0 tar -czvf html_all.tar.gz
+此处需要说明的是：
+选项 -iname 表示按不区分大小写的名称进行查找；
+选项 -print0 表示以“\0”为分隔标志进行分隔；
+选项 -0 表示以“\0”为拆分标志进行拆分；
+选项 -c 表示创建压缩包；
+选项 -z 表示压缩算法为 gzip ；
+选项 -v 表示列出正在被处理的项目；
+选项 -f 表示创建压缩包的自定义名称。
+
+2.5
+（进阶）编写一个命令或脚本递归的查找文件夹中最近修改的文件。
+更通用的做法，你可以按照最近的修改时间列出文件吗？
+答：
+执行下面的命令即可：
+find . -mtime -3 -print0 | xargs -0 ls -lhtd
+此处需要说明的是：
+选项 -d 表示遇到目录不列出目录的内容，仅列出目录本身。
