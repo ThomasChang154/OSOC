@@ -1475,7 +1475,8 @@ echo ‘[scale=<num>]; <expression>’ | bc
 
 if…then…fi语句的格式如下：
 
-```if [ <condition_1> ]; then
+```
+if [ <condition_1> ]; then
 
 	…
 
@@ -1488,6 +1489,7 @@ else
 	…
 
 fi
+```
 
 多重条件可以写成：
 
